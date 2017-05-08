@@ -16,17 +16,21 @@ public class Bot {
 	WebSocket webSocket;
 	BotSettings settings;
 	BotTemplate template;
+	BotNotifier notifier;
 	Placer placer;
-	public Bot(BotSettings settings, BotTemplate template) {
+	public Bot(BotSettings settings, BotTemplate template, BotNotifier notifier) {
 		this.settings = settings;
 		this.template = template;
-		this.placer = new Placer(template);
+		this.notifier = notifier;
+		this.placer = new Placer(template, notifier);
 	}
 	public void start() {
 		try {
 			System.out.println("Init sockets..");
+			notifier.status("Init sockets..");
 			initWebSockets();
 			System.out.println("Succes !");
+			notifier.status("Succes !");
 			placer.delay = settings.delay;
 			placer.threads = settings.threads;
 			placer.pixelize = settings.pixelize;

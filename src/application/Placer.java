@@ -2,7 +2,6 @@ package application;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -17,28 +16,37 @@ public class Placer {
 	WebSocket ws = null;
 	
 	BotTemplate botTemplate;
+	BotNotifier notifier;
 	
-	BufferedImage board;
-	BufferedImage template;
+	byte[][] board;
+	byte[][] template;
+	int template_w, template_h;
 	
 	Pixel pendingPixel;
 	
-	int delay = 50;
-	int threads = 1;
+	int delay = 10;
+	int threads = 10;
 	
 	boolean pixelize = true;
 	
-	public Placer(BotTemplate botTemplate) {
+	public Placer(BotTemplate botTemplate, BotNotifier notifier) {
 		this.botTemplate = botTemplate;
-		System.out.println("Upload board data..");
+		this.notifier = notifier;
+		System.out.println("Downloading board data..");
+		notifier.status("Downloading board data..");
 		board = Board.get();
 		try {
-			System.out.println("Upload template data..");
-			template = ImageIO.read(new URL(botTemplate.src));
+			System.out.println("Downloading template data..");
+			notifier.status("Downloading template data..");
+			BufferedImage template_image = ImageIO.read(new URL(botTemplate.src));
+			template_w = template_image.getWidth();
+			template_h = template_image.getHeight();
+			template = convertImage(template_image);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("Done!");
+		notifier.status("Done!");
 	}
 
 	public void receivedData(byte[] data) {
@@ -74,21 +82,24 @@ public class Placer {
 	private void drawPixel() {
 		switch(botTemplate.direction) {
 		case 0:
-			List<Pixel> points = new ArrayList<>();
-			for (int x = 0; x < template.getWidth(); x++) {
-				for (int y = 0; y < template.getHeight(); y++) {
+			Random r = new Random();
+			Pixel p = checkPixel(r.nextInt(template_w), r.nextInt(template_h));
+			if (p != null) {putPixel(p);return;}
+			List<Pixel> points = new ArrayList<Pixel>();
+			for (int x = 0; x < template_w; x++) {
+				for (int y = 0; y < template_h; y++) {
 					Pixel pixel = checkPixel(x, y);
 					if (pixel != null)
 						points.add(pixel);
 				}
 			}
 			if (points.size() > 0)
-				putPixel(points.get(new Random().nextInt(points.size())));
+				putPixel(points.get(r.nextInt(points.size())));
 				
 			break;
 		case 1:
-			for (int x = 0; x < template.getWidth(); x++) {
-				for (int y = 0; y < template.getHeight(); y++) {
+			for (int x = 0; x < template_w; x++) {
+				for (int y = 0; y < template_h; y++) {
 					Pixel pixel = checkPixel(x, y);
 					if (pixel == null) continue;
 					else {putPixel(pixel);return;}
@@ -96,8 +107,8 @@ public class Placer {
 			}
 			break;
 		case 2:
-			for (int x = template.getWidth() - 1; x > 0 ; x--) {
-				for (int y = 0; y < template.getHeight(); y++) {
+			for (int x = template_w - 1; x > 0 ; x--) {
+				for (int y = 0; y < template_h; y++) {
 					Pixel pixel = checkPixel(x, y);
 					if (pixel == null) continue;
 					else {putPixel(pixel);return;}
@@ -105,8 +116,8 @@ public class Placer {
 			}
 			break;
 		case 3:
-			for (int y = 0; y < template.getHeight(); y++) {
-				for (int x = 0; x < template.getWidth(); x++) {
+			for (int y = 0; y < template_h; y++) {
+				for (int x = 0; x < template_w; x++) {
 					Pixel pixel = checkPixel(x, y);
 					if (pixel == null) continue;
 					else {putPixel(pixel);return;}
@@ -114,8 +125,8 @@ public class Placer {
 			}
 			break;
 		case 4:
-			for (int y = template.getHeight() - 1; y > 0 ; y--) {
-				for (int x = 0; x < template.getWidth(); x++) {
+			for (int y = template_h - 1; y > 0 ; y--) {
+				for (int x = 0; x < template_w; x++) {
 					Pixel pixel = checkPixel(x, y);
 					if (pixel == null) continue;
 					else {putPixel(pixel);return;}
@@ -123,15 +134,15 @@ public class Placer {
 			}
 			break;
 		case 5:
-			for (int x = 0; x < template.getWidth(); x++) {
-				for (int y = x % 2; y < template.getHeight(); y+=2) {
+			for (int x = 0; x < template_w; x++) {
+				for (int y = x % 2; y < template_h; y+=2) {
 					Pixel pixel = checkPixel(x, y);
 					if (pixel == null) continue;
 					else {putPixel(pixel);return;}
 				}
 			}
-			for (int x = 0; x < template.getWidth(); x++) {
-				for (int y = 1-(x % 2); y < template.getHeight(); y+=2) {
+			for (int x = 0; x < template_w; x++) {
+				for (int y = 1-(x % 2); y < template_h; y+=2) {
 					Pixel pixel = checkPixel(x, y);
 					if (pixel == null) continue;
 					else {putPixel(pixel);return;}
@@ -143,31 +154,23 @@ public class Placer {
 	private Pixel checkPixel(int x, int y) {
 		int bx = x + botTemplate.x;
 		int by = y + botTemplate.y;
-		int[] pt = getImagePixel(template, x, y);
-		int[] pb = getImagePixel(board, bx, by);
-		
-		if (pt[3] <= 127)
+		byte pb = board[bx][by];
+		byte pt = template[x][y];
+
+		if (pt == -1)
 			return null;
-		if (pixelize)
-			pt = nearesColors(pt);
-		if (!RGBEquals(pt, pb)) {
-			int c = getColorIndex(pt);
-			if (c == -1) {
-				System.err.println("Incorrect color !");
-				return null;
-			}
-			return new Pixel(bx, by, (byte) c);
+		if (pt != pb) {
+			return new Pixel(bx, by, pt);
 		}
 		return null;
 	}
 	private int[] getImagePixel(BufferedImage img, int x, int y) {
 		int rgb = img.getRGB(x, y);
 		Color c = new Color(rgb, true);
-		//return new int[] {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
 		return new int[] {c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()};
 	}
 	private void putPixel(Pixel p) {
-		updatePixel(p); // TODO test
+		updatePixel(p);
 		byte[] d = new byte[10];
 		Utils.setByte(d, 0, (byte) 10);
 		Utils.setInt(d, 1, p.x);
@@ -176,21 +179,21 @@ public class Placer {
 		ws.sendBinary(d);
 	}
 	private void updatePixel(Pixel p) {
-		WritableRaster raster = board.getRaster();
-		raster.setPixel(p.x, p.y, Pixel.PALETTE[p.color]);
+		board[p.x][p.y] = p.color;
 	}
 	private boolean RGBEquals(int[] a, int[] b) {
 		return (a[0] == b[0] &&
 				a[1] == b[1] &&
 				a[2] == b[2]);
 	}
-	private int getColorIndex(int[] rgb) {
-		for (int i = 0; i < Pixel.PALETTE.length; i++)
+	private byte getColorIndex(int[] rgb) {
+		for (byte i = 0; i < Pixel.PALETTE.length; i++)
 			if (RGBEquals(Pixel.PALETTE[i], rgb))
 				return i;
 		return -1;
 	}
 	int[] nearesColors(int[] color) {
+		// TODO ignore alpha
 		List<Integer> ar = new ArrayList<>();
 		for (int i = 0; i < Pixel.PALETTE.length; i++) {
 			int d = colorDistance(Pixel.PALETTE[i], color);
@@ -211,5 +214,24 @@ public class Placer {
 	}
 	int colorDistance(int[] a, int[] b) {
 		return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+	}
+	private byte[][] convertImage(BufferedImage bi) {
+		byte[][] img = new byte[bi.getWidth()][bi.getHeight()];
+		for (int x = 0; x < bi.getWidth(); x++) {
+			for (int y = 0; y < bi.getHeight(); y++) {
+				int[] p = getImagePixel(bi, x, y);
+				if (p[3] <= 127) {
+					img[x][y] = -1;
+					continue;
+				}
+				if (pixelize)
+					p = nearesColors(p);
+				byte c = getColorIndex(p);
+				if (c == -1)
+					System.out.println(String.format("incorrect color at (%d, %d)", x, y));
+				img[x][y] = c;
+			}
+		}
+		return img;
 	}
 }

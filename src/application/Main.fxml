@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -13,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane prefHeight="280.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<GridPane prefHeight="300.0" prefWidth="460.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
    <rowConstraints>
       <RowConstraints />
       <RowConstraints vgrow="ALWAYS" />
@@ -25,11 +26,12 @@
       <ToolBar prefHeight="40.0" prefWidth="200.0">
         <items>
           <Button fx:id="start" mnemonicParsing="false" onAction="#buttonStart" text="Start" />
-            <Label text="Pixel Cannon" />
+            <Label text="Mode" />
             <ComboBox fx:id="direction" prefWidth="150.0" />
+            <Label fx:id="status" text="Pixel Cannon" />
         </items>
       </ToolBar>
-      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+      <VBox prefHeight="200.0" prefWidth="449.0" GridPane.rowIndex="1">
          <children>
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
@@ -43,7 +45,7 @@
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
                   <Label prefWidth="35.0" text="Image" />
-                  <TextField fx:id="image" promptText="url" text="http://i.imgur.com/a3oovci.png" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="image" promptText="url" text="http://i.imgur.com/ggrUbaU.png" HBox.hgrow="ALWAYS" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -52,9 +54,9 @@
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
                   <Label prefWidth="35.0" text="X" />
-                  <TextField text="3274" HBox.hgrow="ALWAYS" fx:id="xpos" />
+                  <TextField text="1725" HBox.hgrow="ALWAYS" fx:id="xpos" />
                   <Label text="Y" />
-                  <TextField fx:id="ypos" text="0" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="ypos" text="415" HBox.hgrow="ALWAYS" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -76,7 +78,7 @@
                   <Label prefWidth="35.0" text="Delay" />
                   <TextField fx:id="delay" text="10" />
                   <Label text="Threads" />
-                  <TextField fx:id="threads" text="5" />
+                  <TextField fx:id="threads" text="15" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -89,6 +91,16 @@
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="5.0">
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <Label text="Info" />
+                  <Separator orientation="VERTICAL" />
+                  <Label fx:id="info" text="..." />
+               </children>
             </HBox>
          </children>
       </VBox>
