@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
@@ -14,7 +15,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane prefHeight="300.0" prefWidth="460.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<GridPane prefHeight="430.0" prefWidth="460.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
    <rowConstraints>
       <RowConstraints />
       <RowConstraints vgrow="ALWAYS" />
@@ -64,21 +65,10 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
-                  <Label prefWidth="35.0" text="Proxy" />
-                  <TextField fx:id="proxy" promptText="example http://109.251.34.7:8080/" HBox.hgrow="ALWAYS" />
-                  <Label text="Timeout" />
-                  <TextField fx:id="timeout" prefWidth="70.0" promptText="miliseconds" text="15000" />
-               </children>
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
                   <Label prefWidth="35.0" text="Delay" />
-                  <TextField fx:id="delay" text="10" />
+                  <TextField fx:id="delay" text="20" />
                   <Label text="Threads" />
-                  <TextField fx:id="threads" text="15" />
+                  <TextField fx:id="threads" text="20" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -102,6 +92,12 @@
                   <Label fx:id="info" text="..." />
                </children>
             </HBox>
+            <Label text="Templates">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </Label>
+            <ListView fx:id="templates_list" maxHeight="-Infinity" minHeight="0.0" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
    </children>

@@ -2,6 +2,7 @@ package application;
 
 public class BotTemplate {
 	// template
+	public int _id;
 	public String title;
 	public String src;
 	public int x, y;
