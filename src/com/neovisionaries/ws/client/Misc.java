@@ -22,6 +22,7 @@ import static com.neovisionaries.ws.client.WebSocketOpcode.CONTINUATION;
 import static com.neovisionaries.ws.client.WebSocketOpcode.PING;
 import static com.neovisionaries.ws.client.WebSocketOpcode.PONG;
 import static com.neovisionaries.ws.client.WebSocketOpcode.TEXT;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

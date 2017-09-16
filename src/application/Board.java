@@ -11,15 +11,15 @@ public class Board {
 	final static int BOARD_WIDTH = 3600;
 	final static int BOARD_HEIGHT = 2200;
 	
-	public static byte[][] cachedBoard = null;
-	
-	public static byte[][] get() {
-		if (cachedBoard == null) {
+	private static byte[][] cachedBoard = null;
+
+	public static byte[][] get(boolean force) {
+		if (cachedBoard == null || force) {
 			cachedBoard = load();
 		}
 		return cachedBoard;
 	}
-	public static byte[][] load() {
+	private static byte[][] load() {
 		byte[][] board = new byte[BOARD_WIDTH][BOARD_HEIGHT];
 		try {
 			URL url = new URL(BOARD_URL);
